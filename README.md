@@ -1,50 +1,100 @@
-# Welcome to your Expo app 👋
+### New Issue Checklist
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+- [Link of the issue](https://github.com/parse-community/parse-server/issues/10006).
 
-## Get started
+### Issue Description
 
-1. Install dependencies
+When using **Parse JavaScript SDK in a React Native (Expo) project**, the app fails to start due to an incompatible Node.js dependency.
 
-   ```bash
-   npm install
-   ```
+Parse imports the `ws` package internally, which in turn requires the Node standard library module **`stream`**. However, the **React Native runtime does not include Node standard libraries**, causing the build to fail.
 
-2. Start the app
+This error occurs when importing:
 
-   ```bash
-   npx expo start
-   ```
+```ts
+// app/_layout.tsx
+import "parse/react-native";
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+Parse.initialize('my-parse-id', 'xxx');
+Parse.serverURL = 'http://localhost:8080/parse';
 ```
+### Steps to reproduce
+1. Clone the repository:  
+   `git clone https://github.com/tiavina-mika/react-native-parse-server-issue`
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies:  
+   `npm install`
 
-## Learn more
+3. Start the Expo development server:  
+   `npm start`
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Choose **Android** or scan the QR code and open the app using **Expo Go** on a physical device.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+5. Observe the error:
+   - An error appears in the terminal/console
+   - The same error is shown in Expo Go
 
-## Join the community
+### Actual Outcome
+The app fails to start. The following error is shown in the terminal and in Expo Go:
+`The package at "node_modules/parse/node_modules/ws/lib/receiver.js" attempted to import the Node standard library module "stream".`
 
-Join our community of developers creating universal apps.
+### Expected Outcome
+The app should start normally in Expo Go without errors.  
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Specifically:
+- Importing `parse/react-native` should not cause any runtime errors.
+- The Expo app should load successfully on the device or emulator.
+- Parse SDK features, including WebSocket / LiveQuery, should work as intended.
+
+### Environment
+<!-- Be specific with versions, don't use "latest" or semver ranges like "~x.y.z" or "^x.y.z". -->
+
+Server
+- Parse Server version: `8.2.5`
+- Operating system: `Windows 11`
+- Local or remote host (AWS, Azure, Google Cloud, Heroku, Digital Ocean, etc): `Local`
+
+Database
+- System (MongoDB or Postgres): `MongoDB `
+- Local or remote host (MongoDB Atlas, mLab, AWS, Azure, Google Cloud, etc): `MongoDB Atlas`
+
+Client
+- SDK (iOS, Android, JavaScript, PHP, Unity, etc): `JavaScript`
+- SDK version: `8.0.0`  and `7.0.2`
+
+### Logs
+```ts
+The package at "node_modules\parse\node_modules\ws\lib\receiver.js" attempted to import the Node standard library module "stream".
+It failed because the native React runtime does not include the Node standard library.
+Learn more: https://docs.expo.dev/workflow/using-libraries/#using-third-party-libraries
+  1 | 'use strict';
+  2 |
+> 3 | const { Writable } = require('stream');
+    |                               ^
+  4 |
+  5 | const PerMessageDeflate = require('./permessage-deflate');
+  6 | const {
+
+Import stack:
+
+ node_modules\parse\node_modules\ws\lib\receiver.js
+ | import "stream"
+
+ node_modules\parse\node_modules\ws\index.js
+ | import "./lib/receiver"
+
+ node_modules\parse\lib\react-native\WebSocketController.js
+ | import "ws"
+
+ node_modules\parse\lib\react-native\Parse.js
+ | import "./WebSocketController"
+
+ node_modules\parse\react-native.js
+ | import "./lib/react-native/Parse.js"
+
+ app\_layout.tsx
+ | import "parse/react-native"
+
+ app (require.context)
+
+› Stopped server
+```
