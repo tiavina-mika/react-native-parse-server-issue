@@ -1,4 +1,3 @@
-### New Issue Checklist
 
 - [Link of the issue](https://github.com/parse-community/parse-server/issues/10006).
 
