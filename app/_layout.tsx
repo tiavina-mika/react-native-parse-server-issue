@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Platform } from 'react-native';
 import Parse from 'parse/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,15 +12,9 @@ export const unstable_settings = {
 };
 
 // -------------- init parse server -------------- //
-Parse.CoreManager.set('LiveQueryController', {
-  createController() { return null; }, // or simply null if older versions allow
-});
-
-if (Platform.OS !== 'web') {
-  Parse.setAsyncStorage(AsyncStorage);
-}
-Parse.initialize('kcbuLhVBEFELnPfAW', 'xxx');
-Parse.serverURL = '192.168.88.18:8090' + '/parse';
+Parse.setAsyncStorage(AsyncStorage);
+Parse.initialize('my-parse-id', 'xxx');
+Parse.serverURL = 'http://10.0.2.2:8080' + '/parse';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

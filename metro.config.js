@@ -4,8 +4,6 @@ const { getDefaultConfig } = require('expo/metro-config');
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-// config.resolver.extraNodeModules = {
-//   ws: require.resolve('./ws-shim.js'), // create this file
-// };
+config.resolver.unstable_enablePackageExports = false;
 
 module.exports = config;
